@@ -6,6 +6,8 @@ from indexing.embeddings import embed_text
 from indexing.chunk_documents import chunk_text
 from indexing.preprocess import clean_text
 from indexing.create_index import es, INDEX_NAME
+from utils.cloudinary_upload import upload_chunk_to_cloudinary
+
 from pymongo import MongoClient
 from elasticsearch import helpers
 from dotenv import load_dotenv
@@ -45,15 +47,27 @@ def index_all_documents():
             # Embedding
             # -----------------
             embedding = embed_text(cleaned_chunk)
+            chunk_id = f"{doc_id}_c{idx}"
+
+            # 1️ Upload to Cloudinary
+            print("Uploading chunk to Cloudinary...")
+            chunk_url = upload_chunk_to_cloudinary(chunk_id, cleaned_chunk)
+            print(f"Uploaded chunk to Cloudinary: {chunk_url}")
+            
+            # 2️ Generate snippet
+            snippet = cleaned_chunk[:100] + "..." if len(cleaned_chunk) > 100 else cleaned_chunk
 
             es_doc = {
-                "chunk_id": str(uuid.uuid4()),
+                "chunk_id": chunk_id,
+                "chunk_url": chunk_url,          
+                "snippet": snippet,  
+
                 "doc_id": doc_id,
                 "title": title,
                 "document_type": document_type,
 
                 "chunk_index": idx,
-                "chunk_text": cleaned_chunk,
+                "chunk_text": cleaned_chunk,       # i can remove this from here because i am addding a hyperlink for full chunk text .. but fir bhi rkh lete h cross veryfy ke liye
 
                 "embedding": embedding,
                 "num_tokens": len(cleaned_chunk.split()),

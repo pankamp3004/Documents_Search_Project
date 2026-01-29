@@ -89,14 +89,19 @@ if search_clicked and query.strip():
                     st.markdown(f"### 🔹 Result #{i}")
                     st.markdown(f"**Source:** `{r.get('title', 'Unknown')}`")
                     st.markdown(f"**Document Type:** `{r.get('document_type', 'N/A')}`")
-                    st.markdown(f"**Chunk Index:** `{r.get('chunk_index')}`")
+                    # st.markdown(f"**Chunk Index:** `{r.get('chunk_index')}`")
 
                 with cols[1]:
                     st.metric("Score", f"{r.get('rrf_score', 0):.4f}")
 
-                # Chunk Text (Expandable)
-                with st.expander("📄 View Chunk Text"):
-                    st.write(r.get("chunk_text", ""))
+                # # Chunk Text (Expandable)
+                # with st.expander("📄 View Chunk Text"):
+                #     st.write(r.get("chunk_text", ""))
+
+                st.write(r.get("snippet"))
+
+                if r.get("chunk_url"):
+                    st.markdown(f"🔗 [View Full Chunk]({r.get('chunk_url')})")
 
 # =========================
 # Footer

@@ -35,6 +35,8 @@ INDEX_MAPPING = {
 
             # Identifiers
             "chunk_id": {"type": "keyword"},
+            "chunk_url": {"type": "keyword"},      
+            "snippet": {"type": "text"},
             "doc_id": {"type": "keyword"},
 
             # Metadata

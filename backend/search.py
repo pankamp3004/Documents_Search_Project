@@ -153,6 +153,8 @@ def hybrid_document_search_rrf(
         results.append({
             "rrf_score": rrf_score,
             "chunk_text": src.get("chunk_text", ""),
+            "snippet": src.get("snippet", ""), 
+            "chunk_url": src.get("chunk_url"),       
             "title": src.get("title"),
             "doc_id": src.get("doc_id"),
             "chunk_index": src.get("chunk_index"),
@@ -163,7 +165,5 @@ def hybrid_document_search_rrf(
             break
 
     return results
-
-
 
 

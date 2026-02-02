@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 from typing import List, Dict
 
+
 # =========================
 # Config
 # =========================
@@ -100,9 +101,10 @@ if search_clicked and query.strip():
 
                 st.write(r.get("snippet"))
 
-                if r.get("chunk_url"):
-                    st.markdown(f"🔗 [View Full Chunk]({r.get('chunk_url')})")
 
+                chunk_url = r.get("chunk_url")
+                if chunk_url:
+                    st.markdown(f"[📖 View Full Chunk]({chunk_url})")
 # =========================
 # Footer
 # =========================

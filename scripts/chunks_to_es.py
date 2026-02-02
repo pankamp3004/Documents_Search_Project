@@ -15,22 +15,30 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MONGO_URI = os.getenv("MONGO_URI")
-DB_NAME = "ai_search"
-COLLECTION = "documents"
+DB_NAME = os.getenv("MONGO_DB_NAME", "ai_search")
+COllECTION = os.getenv("MONGO_COLLECTION_NAME","documents_with_hashes")
+CHUNK_COLLECTION = os.getenv("CHUNK_COLLECTION_NAME", "document_chunks")  # new collection to track indexed chunks
+
 
 client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
-documents = db[COLLECTION]
+documents = db[COllECTION]
+chunks_collection = db[CHUNK_COLLECTION]
 
 
 def index_all_documents():
-    total_docs = documents.count_documents({})
-    print(f"Found {total_docs} documents in MongoDB")
+    # only pending docs
+    pending_count = documents.count_documents({"status": "pending"})
+    print(f"Found {pending_count} pending documents")
+
+
+    # total_docs = documents.count_documents({})
+    # print(f"Found {total_docs} documents in MongoDB")
 
     actions = []
     chunk_counter = 0
 
-    for doc in documents.find({}):
+    for doc in documents.find({"status": "pending"}):
         doc_id = doc["doc_id"]
         title = doc.get("title")
         document_type = doc.get("document_type", "unknown")
@@ -49,35 +57,41 @@ def index_all_documents():
             embedding = embed_text(cleaned_chunk)
             chunk_id = f"{doc_id}_c{idx}"
 
-            # 1️ Upload to Cloudinary
-            print("Uploading chunk to Cloudinary...")
-            chunk_url = upload_chunk_to_cloudinary(chunk_id, cleaned_chunk)
-            print(f"Uploaded chunk to Cloudinary: {chunk_url}")
+            # # 1️ Upload to Cloudinary
+            # print("Uploading chunk to Cloudinary...")
+            # chunk_url = upload_chunk_to_cloudinary(chunk_id, cleaned_chunk)
+            # print(f"Uploaded chunk to Cloudinary: {chunk_url}")
             
             # 2️ Generate snippet
-            snippet = cleaned_chunk[:100] + "..." if len(cleaned_chunk) > 100 else cleaned_chunk
+            snippet = cleaned_chunk[:250] + "..." if len(cleaned_chunk) > 100 else cleaned_chunk
 
-            es_doc = {
+            chunk_doc = {
                 "chunk_id": chunk_id,
-                "chunk_url": chunk_url,          
-                "snippet": snippet,  
-
                 "doc_id": doc_id,
+                "chunk_index": idx,
+
+                "chunk_text": cleaned_chunk,       # i can remove this from here because i am addding a hyperlink for full chunk text .. but fir bhi rkh lete h cross veryfy ke liye
+                "snippet": snippet, 
+               
                 "title": title,
                 "document_type": document_type,
-
-                "chunk_index": idx,
-                "chunk_text": cleaned_chunk,       # i can remove this from here because i am addding a hyperlink for full chunk text .. but fir bhi rkh lete h cross veryfy ke liye
 
                 "embedding": embedding,
                 "num_tokens": len(cleaned_chunk.split()),
                 "created_at": datetime.now(timezone.utc)
             }
 
+
+            chunks_collection.update_one(
+                {"chunk_id": chunk_id},
+                {"$set": chunk_doc},
+                upsert=True
+            )
+            # INDEX TO ELASTICSEARCH
             actions.append({
                 "_index": INDEX_NAME,
-                "_id": es_doc["chunk_id"],
-                "_source": es_doc
+                "_id": chunk_doc["chunk_id"],
+                "_source": chunk_doc
             })
 
             chunk_counter += 1
@@ -85,13 +99,20 @@ def index_all_documents():
             # -----------------
             # Bulk Flush (Batching)
             # -----------------
+            # Bulk batching
             if len(actions) >= 100:
-                helpers.bulk(es, actions)
+                helpers.bulk(es, actions, request_timeout=60)
                 actions.clear()
+
+        # VERY IMPORTANT → mark processed
+        documents.update_one(
+            {"_id": doc["_id"]},
+            {"$set": {"status": "processed"}}
+        )
 
     # Flush remaining
     if actions:
-        helpers.bulk(es, actions)
+        helpers.bulk(es, actions, request_timeout=60)
 
     print(f"Indexed {chunk_counter} chunks into Elasticsearch")
 
@@ -99,5 +120,117 @@ def index_all_documents():
 # Main
 # =========================
 
-if __name__ == "__main__":
-    index_all_documents()
+# if __name__ == "__main__":
+#     index_all_documents()
+
+
+
+
+
+
+              # this code indexes all the documents present in mongo to elasticsearch after chunking and embedding
+               # IT SHOULD BE LIKE THIS ONLY PENDIND DOCUMENTS SHOULD BE INDEXED NOT ALL AGAIN 
+             # problem when we add new documents to mongo then how to index only those new documents to elasticsearch
+# import os
+# import uuid
+# from datetime import datetime,timezone
+# from typing import List
+# from indexing.embeddings import embed_text
+# from indexing.chunk_documents import chunk_text
+# from indexing.preprocess import clean_text
+# from indexing.create_index import es, INDEX_NAME
+# from utils.cloudinary_upload import upload_chunk_to_cloudinary
+
+# from pymongo import MongoClient
+# from elasticsearch import helpers
+# from dotenv import load_dotenv
+
+# load_dotenv()
+
+# MONGO_URI = os.getenv("MONGO_URI")
+# DB_NAME = "ai_search"
+# COLLECTION = "documents"
+
+# client = MongoClient(MONGO_URI)
+# db = client[DB_NAME]
+# documents = db[COLLECTION]
+
+
+# def index_all_documents():
+#     total_docs = documents.count_documents({})
+#     print(f"Found {total_docs} documents in MongoDB")
+
+#     actions = []
+#     chunk_counter = 0
+
+#     for doc in documents.find({}):
+#         doc_id = doc["doc_id"]
+#         title = doc.get("title")
+#         document_type = doc.get("document_type", "unknown")
+#         raw_text = doc.get("raw_text", "")
+
+#         chunks = chunk_text(raw_text)
+
+#         for idx, chunk in enumerate(chunks):
+#             cleaned_chunk = clean_text(chunk)
+#             if not cleaned_chunk.strip():
+#                 continue
+
+#             # -----------------
+#             # Embedding
+#             # -----------------
+#             embedding = embed_text(cleaned_chunk)
+#             chunk_id = f"{doc_id}_c{idx}"
+
+#             # 1️ Upload to Cloudinary
+#             print("Uploading chunk to Cloudinary...")
+#             chunk_url = upload_chunk_to_cloudinary(chunk_id, cleaned_chunk)
+#             print(f"Uploaded chunk to Cloudinary: {chunk_url}")
+            
+#             # 2️ Generate snippet
+#             snippet = cleaned_chunk[:100] + "..." if len(cleaned_chunk) > 100 else cleaned_chunk
+
+#             es_doc = {
+#                 "chunk_id": chunk_id,
+#                 "chunk_url": chunk_url,          
+#                 "snippet": snippet,  
+
+#                 "doc_id": doc_id,
+#                 "title": title,
+#                 "document_type": document_type,
+
+#                 "chunk_index": idx,
+#                 "chunk_text": cleaned_chunk,       # i can remove this from here because i am addding a hyperlink for full chunk text .. but fir bhi rkh lete h cross veryfy ke liye
+
+#                 "embedding": embedding,
+#                 "num_tokens": len(cleaned_chunk.split()),
+#                 "created_at": datetime.now(timezone.utc)
+#             }
+
+#             actions.append({
+#                 "_index": INDEX_NAME,
+#                 "_id": es_doc["chunk_id"],
+#                 "_source": es_doc
+#             })
+
+#             chunk_counter += 1
+
+#             # -----------------
+#             # Bulk Flush (Batching)
+#             # -----------------
+#             if len(actions) >= 100:
+#                 helpers.bulk(es, actions)
+#                 actions.clear()
+
+#     # Flush remaining
+#     if actions:
+#         helpers.bulk(es, actions)
+
+#     print(f"Indexed {chunk_counter} chunks into Elasticsearch")
+
+# # =========================
+# # Main
+# # =========================
+
+# if __name__ == "__main__":
+#     index_all_documents()

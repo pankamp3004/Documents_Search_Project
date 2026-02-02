@@ -98,6 +98,7 @@ def reciprocal_rank_fusion(bm25_hits, vector_hits, k: int = 60) -> Dict[str, flo
 # =========================
 # Hybrid Search (FINAL)
 # =========================
+# BASE_URL = "http://127.0.0.1:8000"
 
 def hybrid_document_search_rrf(
     query: str,
@@ -152,14 +153,17 @@ def hybrid_document_search_rrf(
 
         results.append({
             "rrf_score": rrf_score,
+            "chunk_id": src.get("chunk_id"),
             "chunk_text": src.get("chunk_text", ""),
             "snippet": src.get("snippet", ""), 
-            "chunk_url": src.get("chunk_url"),       
             "title": src.get("title"),
             "doc_id": src.get("doc_id"),
             "chunk_index": src.get("chunk_index"),
             "document_type": src.get("document_type"),
+            "chunk_url": f"http://127.0.0.1:8000/chunk/{src.get('chunk_id')}"
         })
+
+        # results["chunk_url"] = f"{BASE_URL}/chunk/{results['chunk_id']}"
 
         if len(results) >= top_n:
             break

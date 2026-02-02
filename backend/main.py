@@ -1,7 +1,23 @@
-from fastapi import FastAPI, Query, Request
+from fastapi import FastAPI, Query, Request, HTTPException
 import time
+import os
 from typing import Optional, List
 from backend.search import hybrid_document_search_rrf
+from pymongo import MongoClient
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+MONGO_URI = os.getenv("MONGO_URI")
+DB_NAME = os.getenv("MONGO_DB_NAME", "ai_search")
+CHUNK_COLLECTION = os.getenv("CHUNK_COLLECTION_NAME", "document_chunks")  
+
+
+client = MongoClient(MONGO_URI)
+db = client[DB_NAME]
+chunks_collection = db[CHUNK_COLLECTION]
+
 
 
 app = FastAPI(
@@ -26,6 +42,22 @@ async def add_process_time_header(request: Request, call_next):
 @app.get("/")
 def health_check():
     return {"status": "ok", "service": "ecommerce-search"}
+
+
+@app.get("/chunk/{chunk_id}")
+def get_chunk(chunk_id: str):
+
+    chunk = chunks_collection.find_one({"chunk_id": chunk_id})
+
+    if not chunk:
+        raise HTTPException(status_code=404, detail="Chunk not found")
+
+    return {
+        "chunk_id": chunk["chunk_id"],
+        "doc_id": chunk["doc_id"],
+        "title": chunk.get("title"),
+        "chunk_text": chunk["chunk_text"]
+    }
 
 
 @app.get("/search")

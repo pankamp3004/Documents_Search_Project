@@ -63,7 +63,7 @@ def index_all_documents():
             # print(f"Uploaded chunk to Cloudinary: {chunk_url}")
             
             # 2️ Generate snippet
-            snippet = cleaned_chunk[:250] + "..." if len(cleaned_chunk) > 100 else cleaned_chunk
+            snippet = cleaned_chunk[:370] + "..." if len(cleaned_chunk) > 100 else cleaned_chunk
 
             chunk_doc = {
                 "chunk_id": chunk_id,

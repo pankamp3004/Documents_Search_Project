@@ -180,7 +180,8 @@ div[data-baseweb="input"] input:-ms-input-placeholder {
             font-weight:500 !important;
             }
          /* ================= TOOLTIP ================= */
-
+.st-emotion-cache-znj1k1{
+            color:#ffffff !important;}
 .tooltip {
     position: relative;
     display: inline-block;

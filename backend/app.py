@@ -203,7 +203,7 @@ div[data-baseweb="input"] input:-ms-input-placeholder {
     padding: 14px;
     border-radius: 12px;
 
-    font-size: 13px;
+    font-size: 16px;
     line-height: 1.5;
 
     border: 1px solid rgba(255,255,255,0.08);
@@ -213,7 +213,7 @@ div[data-baseweb="input"] input:-ms-input-placeholder {
     z-index: 999;
 
     bottom: 140%;
-    left: 0;
+    left: -40%;
 
     box-shadow: 0 10px 40px rgba(0,0,0,0.6);
 
@@ -225,6 +225,12 @@ div[data-baseweb="input"] input:-ms-input-placeholder {
     visibility: visible;
     opacity: 1;
 }
+.linkIcon {
+    font-size: 10px;
+margin-left: -21px;
+    top: -18px;
+    position: absolute;
+         }
 
 </style>
 """, unsafe_allow_html=True)
@@ -390,26 +396,30 @@ if search_clicked and query.strip():
 
                 # -------- CHUNKS UNDER TITLE --------
                 for r in chunks:
-
                     snippet = r.get("snippet", "")
                     chunk_url = r.get("chunk_url")
                     chunk_text = r.get("chunk_text", "")
 
-                    st.write(snippet)
-
                     if chunk_url:
-                        st.markdown(f"""
-                        <a href="{chunk_url}" target="_blank">
-                            <div class="tooltip">
-                                🔗 View Full Chunk
-                                <span class="tooltiptext">{chunk_text}</span>
-                            </div>
-                        </a>
-                        """, unsafe_allow_html=True)
-
-                    st.markdown("<br>", unsafe_allow_html=True)
+                        st.markdown(
+                            f"""
+                            <p style="margin-bottom: 40px;border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom:20px;">
+                                {snippet}
+                                <a href="{chunk_url}" target="_blank" style="margin-left: 6px;">
+                                    <span class="tooltip">
+                                        <span class="linkIcon">🔗</span>
+                                        <span class="tooltiptext">{chunk_text}</span>
+                                    </span>
+                                </a>
+                            </p>
+                            """,
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        st.markdown(f"<p>{snippet}</p>", unsafe_allow_html=True)
 
                 st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 # =========================

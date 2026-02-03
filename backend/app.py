@@ -8,7 +8,7 @@ from typing import List, Dict
 API_URL = "http://127.0.0.1:8000/search"
 
 st.set_page_config(
-    page_title="AI Document Search | Neural Engine",
+    page_title="Hybrid Document Search | Neural Engine",
     page_icon="📚",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -51,7 +51,7 @@ st.markdown("""
     /* Hero Text */
     .hero-title {
         font-size: 4.2rem !important;
-        font-weight: 800 !important;
+        font-weight: 600 !important;
         letter-spacing: -3px !important;
         color: white !important;
         text-align: center;
@@ -85,10 +85,13 @@ st.markdown("""
         color: white !important;
         border-radius: 10px !important;
         border: none !important;
-        padding: 12px 30px !important;
+        padding: 15px 30px !important;
         font-weight: 600 !important;
         transition: 0.3s !important;
         box-shadow: 0 0 15px rgba(102, 32, 174, 0.4) !important;
+    }
+    .stVerticalBlock .st-emotion-cache-9nevt8{
+         font-size : 22px !important;        
     }
     div.stButton > button:hover {
         transform: scale(1.02);
@@ -108,12 +111,14 @@ st.markdown("""
     .custom-footer {
         text-align: center;
         color: #4b5563;
-        font-size: 0.8rem;
+        font-size: 20px;
         margin-top: 100px;
         padding-bottom: 40px;
     }
     .st-emotion-cache-zy6yx3{
         padding-top:0 !important;
+            padding-left: 7rem !important;
+        padding-right: 7rem !important;
             }
 div[data-testid="stHorizontalBlock"] 
   > div[data-testid="stColumn"]:nth-child(4) {
@@ -126,7 +131,7 @@ div[data-testid="stHorizontalBlock"]
             div[data-baseweb="input"] {
    
      padding: 0px !important; 
-    height: 101%;
+    height: 75%;
 }
             .st-emotion-cache-79elbk{
             height:100% !important;}
@@ -134,6 +139,33 @@ div[data-testid="stHorizontalBlock"]
     font-size: 20px !important;
     padding: 20px;
 }
+       
+div[data-testid="stSlider"] {
+            margin-left : auto !important;
+            width: 50% !important;
+}
+            div[data-testid="stSelectbox"] {
+ margin-left : auto !important;
+            width: 50% !important;
+}
+            .st-emotion-cache-jigjfz{
+            color: #fff; !important;
+            }
+.st-emotion-cache-znj1k1{
+            color: #fff !important;
+            }
+  .st-emotion-cache-13tbzbm {
+    width: 0 !important;
+    flex: none !important;
+}   
+            .st-emotion-cache-2fgyt4{
+            font-size: 20px !important;
+            }  
+
+            .st-emotion-cache-1n6tfoc{
+            width: 68% !important;
+            margin : auto !important;
+            }             
 </style>
 """, unsafe_allow_html=True)
 
@@ -144,13 +176,13 @@ div[data-testid="stHorizontalBlock"]
 nav_col1, nav_col2, nav_col3, nav_col4 = st.columns([2, 1, 1, 1])
 
 with nav_col1:
-    st.markdown('<div style="font-weight:700; font-size:1.8rem; color:white; padding-top:15px;">📚 AI Document Search</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-weight:600; font-size:1.8rem; color:white; padding-top:15px;">📚Hybrid Document Search</div>', unsafe_allow_html=True)
 
 with nav_col2:
     top_n = st.slider("MAX RESULTS", 1, 50, 15)
 
 with nav_col3:
-    category_display = st.selectbox("CATEGORY", options=["All Assets", "Library Books", "Digital Blogs", "Scientific Papers"])
+    category_display = st.selectbox("CATEGORY", options=["All Assets", "Books", "Blogs", "Research Papers"])
     # Map back to API values
     category_map = {"All Assets": "All", "Library Books": "book", "Digital Blogs": "blog", "Scientific Papers": "paper"}
     document_type = category_map[category_display]
@@ -158,8 +190,8 @@ with nav_col3:
 # =========================
 # MAIN HERO SECTION
 # =========================
-st.markdown('<h1 class="hero-title">AI Document Search</h1>', unsafe_allow_html=True)
-st.markdown('<p class="hero-sub">Explore a universe of knowledge across ML, DL, and NLP documents using <b style="color:white">hybrid semantic + keyword search</b>.</p>', unsafe_allow_html=True)
+st.markdown('<h1 class="hero-title">Hybrid Document Search</h1>', unsafe_allow_html=True)
+st.markdown('<p class="hero-sub">Explore a universe of knowledge across ML, DL, and NLP documents using <b style="color:white">semantic search + keyword search</b>.</p>', unsafe_allow_html=True)
 
 # SEARCH BOX CENTERED
 c1, c2, c3 = st.columns([1, 4, 1])
@@ -200,7 +232,7 @@ if search_clicked and query.strip():
     else:
         for i, r in enumerate(results, start=1):
             with st.container():
-                st.markdown("""<div style="margin: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">""", unsafe_allow_html=True)
+                st.markdown("""<div style="margin: 20px 0;margin-top:0;padding-left:40px !important;padding-right:40px !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">""", unsafe_allow_html=True)
                 cols = st.columns([3, 1])
                 with cols[0]:
                     st.markdown(f"#### {r.get('title', 'Unknown')}")
@@ -209,8 +241,8 @@ if search_clicked and query.strip():
                     chunk_url = r.get("chunk_url")
                     if chunk_url:
                         st.markdown(f"[View Full Document]({chunk_url})")
-                with cols[1]:
-                    st.metric("Score", f"{r.get('rrf_score', 0):.4f}")
+                # with cols[1]:
+                #     st.metric("Score", f"{r.get('rrf_score', 0):.4f}")
                 st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================

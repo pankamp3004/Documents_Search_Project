@@ -102,7 +102,7 @@ def reciprocal_rank_fusion(bm25_hits, vector_hits, k: int = 60) -> Dict[str, flo
 
 def hybrid_document_search_rrf(
     query: str,
-    top_n: int = 10,
+    top_n: int = 30,
     document_type: Optional[str] = None,
     min_rrf_score: float = 0.0155  # threshold
 ) -> List[Dict[str, Any]]:

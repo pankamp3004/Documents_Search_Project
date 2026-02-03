@@ -1,6 +1,8 @@
 import streamlit as st
 import requests
 from typing import List, Dict
+from collections import defaultdict
+
 
 # =========================
 # Config & Setup
@@ -236,8 +238,8 @@ nav_col1, nav_col2, nav_col3 = st.columns([2, 0.5, 0.5])
 with nav_col1:
     st.markdown('<div style="font-weight:600; font-size:1.4rem; color:white; padding-top:15px;">✨ Hybrid Document Search</div>', unsafe_allow_html=True)
 
-with nav_col2:
-    top_n = st.slider("MAX RESULTS", 1, 50, 15)
+# with nav_col2:
+#     top_n = st.slider("MAX RESULTS", 1, 50, 15)
 
 with nav_col3:
     category_display = st.selectbox("CATEGORY", options=["All Assets", "Books", "Blogs", "Research Papers"])
@@ -266,8 +268,8 @@ with c2:
 # =========================
 # FUNCTIONALITY (UNCHANGED)
 # =========================
-def call_search_api(query: str, top_n: int, document_type: str):
-    params = {"query": query, "top_n": top_n}
+def call_search_api(query: str, document_type: str):
+    params = {"query": query}
     if document_type != "All":
         params["document_type"] = document_type
     try:
@@ -281,37 +283,134 @@ def call_search_api(query: str, top_n: int, document_type: str):
 # =========================
 # RESULTS DISPLAY
 # =========================
+
+# if search_clicked and query.strip():
+#     with st.spinner("Searching documents..."):
+#         results = call_search_api(query, top_n, document_type)
+
+#     if not results:
+#         st.warning("No results found.")
+#     else:
+#         for i, r in enumerate(results, start=1):
+#             with st.container():
+#                 st.markdown("""<div class="resultBox" style="margin: 0;padding-left:40px !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0px;">""", unsafe_allow_html=True)
+#                 cols = st.columns([3, 0.1])
+#                 with cols[0]:
+#                     st.markdown(f"#### {r.get('title', 'Unknown')}")
+#                     st.markdown(f"<code style='color:#6620ae'>{r.get('document_type', 'N/A').upper()}</code>", unsafe_allow_html=True)
+#                     st.write(r.get("snippet"))
+#                     chunk_url = r.get("chunk_url")
+#                     chunk_text = r.get("chunk_text", "")
+#                     # if chunk_text: 
+#                     #     st.write("**Full Document Text:**")
+#                     #     st.write(chunk_text)
+#                     if chunk_url:
+#                         st.markdown(f"""
+#                                      <a href="{chunk_url}" target="_blank">
+#                             <div class="tooltip">
+#                                View Full Document
+#                                 <span class="tooltiptext">{chunk_text}</span>
+#                             </div></a>
+#                             """, unsafe_allow_html=True)
+#                 # with cols[1]:
+#                 #     st.metric("Score", f"{r.get('rrf_score', 0):.4f}")
+#                 st.markdown("</div>", unsafe_allow_html=True)
+
+
+# =========================
+# RESULTS DISPLAY (DOCUMENT GROUPED + MAX SCORE)
+# =========================
+
 if search_clicked and query.strip():
     with st.spinner("Searching documents..."):
-        results = call_search_api(query, top_n, document_type)
+        results = call_search_api(query, document_type)
 
     if not results:
         st.warning("No results found.")
+
     else:
-        for i, r in enumerate(results, start=1):
+        # ======================================
+        # 1️ GROUP CHUNKS BY DOCUMENT
+        # ======================================
+        grouped = defaultdict(list)
+
+        for r in results:
+            title = r.get("title", "Unknown")
+            grouped[title].append(r)
+
+
+        # ======================================
+        # 2 DOC SCORE = MAX(chunk_score)
+        # ======================================
+        docs = []
+
+        for title, chunks in grouped.items():
+            best_score = max(c.get("rrf_score", 0) for c in chunks)
+            docs.append((title, chunks, best_score))
+
+
+        # ======================================
+        # 3️ SORT DOCUMENTS BY SCORE (DESC)
+        # ======================================
+        docs.sort(key=lambda x: x[2], reverse=True)
+
+
+        # ======================================
+        # 4️ RENDER DOCUMENT WISE
+        # ======================================
+        for title, chunks, score in docs:
+
+            # sort chunks inside document (best first)
+            chunks = sorted(
+                chunks,
+                key=lambda x: x.get("rrf_score", 0),
+                reverse=True
+            )
+
             with st.container():
-                st.markdown("""<div class="resultBox" style="margin: 0;padding-left:40px !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0px;">""", unsafe_allow_html=True)
-                cols = st.columns([3, 0.1])
-                with cols[0]:
-                    st.markdown(f"#### {r.get('title', 'Unknown')}")
-                    st.markdown(f"<code style='color:#6620ae'>{r.get('document_type', 'N/A').upper()}</code>", unsafe_allow_html=True)
-                    st.write(r.get("snippet"))
+
+                st.markdown("""
+                <div class="resultBox"
+                     style="margin:0;padding-left:40px !important;
+                            border-bottom:1px solid rgba(255,255,255,0.1);
+                            padding-bottom:18px;">
+                """, unsafe_allow_html=True)
+
+                # -------- TITLE (ONLY ONCE) --------
+                st.markdown(
+                    f"### 📘 {title}  <span style='font-size:13px;opacity:0.6'>({len(chunks)} matches)</span>",
+                    unsafe_allow_html=True
+                )
+
+                st.markdown(
+                    f"<code style='color:#6620ae'>{chunks[0].get('document_type','N/A').upper()}</code>",
+                    unsafe_allow_html=True
+                )
+
+
+                # -------- CHUNKS UNDER TITLE --------
+                for r in chunks:
+
+                    snippet = r.get("snippet", "")
                     chunk_url = r.get("chunk_url")
                     chunk_text = r.get("chunk_text", "")
-                    # if chunk_text: 
-                    #     st.write("**Full Document Text:**")
-                    #     st.write(chunk_text)
+
+                    st.write(snippet)
+
                     if chunk_url:
                         st.markdown(f"""
-                                     <a href="{chunk_url}" target="_blank">
+                        <a href="{chunk_url}" target="_blank">
                             <div class="tooltip">
-                               View Full Document
+                                🔗 View Full Chunk
                                 <span class="tooltiptext">{chunk_text}</span>
-                            </div></a>
-                            """, unsafe_allow_html=True)
-                # with cols[1]:
-                #     st.metric("Score", f"{r.get('rrf_score', 0):.4f}")
+                            </div>
+                        </a>
+                        """, unsafe_allow_html=True)
+
+                    st.markdown("<br>", unsafe_allow_html=True)
+
                 st.markdown("</div>", unsafe_allow_html=True)
+
 
 # =========================
 # FOOTER

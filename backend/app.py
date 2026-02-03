@@ -9,7 +9,7 @@ API_URL = "http://127.0.0.1:8000/search"
 
 st.set_page_config(
     page_title="Hybrid Document Search | Neural Engine",
-    page_icon="📚",
+    page_icon="✨",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -19,153 +19,211 @@ st.set_page_config(
 # =========================
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-    /* Hide Streamlit Header/Footer */
-    header, footer, #MainMenu {visibility: hidden;}
-    .stDeployButton {display:none;}
-    
-    /* Global Styles */
-    .stApp {
-        background-color: #050508 !important;
-        background-image: 
-            radial-gradient(circle at 50% 50%, rgba(102, 32, 174, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 0% 0%, rgba(102, 32, 174, 0.08) 0%, transparent 30%) !important;
-        font-family: 'Poppins', sans-serif !important;
-    }
+/* ---------------- GLOBAL ---------------- */
+header, footer, #MainMenu {visibility:hidden;}
+.stDeployButton {display:none;}
 
-    /* Navbar Simulation */
-    .nav-container {
-        position: fixed;
-        top: 0; left: 0; right: 0;
-        padding: 10px 60px;
-        background: rgba(10, 10, 15, 0.85);
-        backdrop-filter: blur(25px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        z-index: 1000;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    /* Hero Text */
-    .hero-title {
-        font-size: 4.2rem !important;
-        font-weight: 600 !important;
-        letter-spacing: -3px !important;
-        color: white !important;
-        text-align: center;
-        margin-top: 80px !important;
-        margin-bottom: 5px !important;
-    }
-    .hero-sub {
-        font-size: 1.6rem !important;
-        color: #94a3b8 !important;
-        text-align: center;
-        max-width: 850px;
-        margin: 0 auto 50px auto !important;
-        line-height: 1.6;
-    }
-
-    /* Input Box Design */
-    div[data-baseweb="input"] {
-        background-color: rgba(255, 255, 255, 0.04) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 12px !important;
-        padding: 8px !important;
-    }
-    input {
-        color: white !important;
-        font-size: 1.1rem !important;
-    }
-
-    /* Search Button */
-    div.stButton > button {
-        background: #6620ae !important;
-        color: white !important;
-        border-radius: 10px !important;
-        border: none !important;
-        padding: 15px 30px !important;
-        font-weight: 600 !important;
-        transition: 0.3s !important;
-        box-shadow: 0 0 15px rgba(102, 32, 174, 0.4) !important;
-    }
-    .stVerticalBlock .st-emotion-cache-9nevt8{
-         font-size : 22px !important;        
-    }
-    div.stButton > button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 0 25px rgba(102, 32, 174, 0.6) !important;
-    }
-
-    /* Slider & Labels */
-    .stSlider label, .stSelectbox label {
-        color: #94a3b8 !important;
-        font-size: 0.7rem !important;
-        text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-        font-weight: 600 !important;
-    }
-
-    /* Custom Footer */
-    .custom-footer {
-        text-align: center;
-        color: #4b5563;
-        font-size: 20px;
-        margin-top: 100px;
-        padding-bottom: 40px;
-    }
-    .st-emotion-cache-zy6yx3{
-        padding-top:0 !important;
-            padding-left: 7rem !important;
-        padding-right: 7rem !important;
-            }
-div[data-testid="stHorizontalBlock"] 
-  > div[data-testid="stColumn"]:nth-child(4) {
-    display: none;
+.stApp {
+    font-family: 'Inter', sans-serif !important;
+    background:
+        radial-gradient(circle at 30% 20%, rgba(255,193,7,0.12), transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(255,193,7,0.06), transparent 40%),
+        linear-gradient(180deg,#060606,#0b0b0b) !important;
+    color:white;
 }
-  .st-emotion-cache-1vo6xi6{
-            min-height:90px !important;
-    border-radius:50% !important;
-            }  
+
+
+/* ---------------- NAVBAR ---------------- */
+.nav-container {
+    background: rgba(15,15,15,0.75);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+
+/* ---------------- HERO TITLE ---------------- */
+.hero-title {
+    font-size: 4rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -2px !important;
+    text-align:center;
+    margin-top: 90px !important;
+
+    background: linear-gradient(90deg,#ffffff,#ffe082,#ffc107);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-sub {
+    font-size: 1.6rem !important;
+    color: #9ca3af !important;
+    text-align:center;
+    max-width: 900px;
+    margin: 0 auto 60px auto !important;
+}
+
+
+/* ---------------- SEARCH INPUT ---------------- */
+div[data-baseweb="input"] {
+    background: #2c2c2c !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 18px !important;
+    padding: 18px !important;
+
+    backdrop-filter: blur(18px);
+}
+
+input {
+    color:white !important;
+    font-size: 1.2rem !important;
+}
+
+
+/* ---------------- GOLD SEARCH BUTTON ---------------- */
+div.stButton > button {
+    background: linear-gradient(135deg,#ffc107,#ffb300) !important;
+    color:#111 !important;
+    font-weight:700 !important;
+    border-radius:14px !important;
+    padding:14px 32px !important;
+    border:none !important;
+
+    box-shadow: 0 0 25px rgba(255,193,7,0.35);
+    transition:0.25s ease;
+}
+
+div.stButton > button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(255,193,7,0.65);
+}
+
+
+/* ---------------- RESULT CARDS ---------------- */
+.result-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 18px;
+    padding: 24px;
+    margin-bottom: 22px;
+    backdrop-filter: blur(12px);
+}
+
+
+/* ---------------- LABELS ---------------- */
+.stSlider label,
+.stSelectbox label {
+    color:#9ca3af !important;
+    font-size:0.75rem !important;
+    text-transform:uppercase !important;
+    letter-spacing:1px !important;
+    font-weight:600 !important;
+}
+
+
+/* ---------------- FOOTER ---------------- */
+.custom-footer {
+    text-align:center;
+    margin-top:120px;
+    font-size:14px;
+    color:#6b7280;
+}
+
+
+/* ---------------- LAYOUT FIXES ---------------- */
+.st-emotion-cache-1n6tfoc {
+    width:70% !important;
+    margin:auto !important;
+}
+.st-emotion-cache-zy6yx3 {
+    padding-top: 0 !important;
+}
             div[data-baseweb="input"] {
-   
-     padding: 0px !important; 
-    height: 75%;
+    height: 56px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 18px !important;
+    border-radius: 14px !important;
 }
-            .st-emotion-cache-79elbk{
-            height:100% !important;}
-    .st-d9 {
-    font-size: 20px !important;
-    padding: 20px;
-}
-       
-div[data-testid="stSlider"] {
-            margin-left : auto !important;
-            width: 50% !important;
-}
-            div[data-testid="stSelectbox"] {
- margin-left : auto !important;
-            width: 50% !important;
-}
-            .st-emotion-cache-jigjfz{
-            color: #fff; !important;
-            }
-.st-emotion-cache-znj1k1{
-            color: #fff !important;
-            }
-  .st-emotion-cache-13tbzbm {
-    width: 0 !important;
-    flex: none !important;
-}   
-            .st-emotion-cache-2fgyt4{
-            font-size: 20px !important;
-            }  
 
-            .st-emotion-cache-1n6tfoc{
-            width: 68% !important;
-            margin : auto !important;
-            }             
+/* actual input text */
+div[data-baseweb="input"] input {
+    height: 100% !important;
+    padding: 0 !important;
+    background: #2c2c2c; !important;        
+}
+
+/* button exact same height */
+div.stButton > button {
+    height: 56px !important;
+    padding: 0 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+            div[data-baseweb="input"] input::placeholder {
+    color: #9ca3af !important;   /* grey */
+    opacity: 1 !important;
+}
+
+/* for full browser support */
+div[data-baseweb="input"] input::-webkit-input-placeholder {
+    color: #9ca3af !important;
+}
+div[data-baseweb="input"] input:-ms-input-placeholder {
+    color: #9ca3af !important;
+}
+            .st-emotion-cache-1hm023c p{
+            font-weight:500 !important;
+            }
+         /* ================= TOOLTIP ================= */
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* tooltip box */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    opacity: 0;
+
+    width: 620px;
+    max-height: 320px;
+    overflow-y: auto;
+
+    background: rgba(25,25,25,0.95);
+    color: #e5e7eb;
+
+    text-align: left;
+    padding: 14px;
+    border-radius: 12px;
+
+    font-size: 13px;
+    line-height: 1.5;
+
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+
+    position: absolute;
+    z-index: 999;
+
+    bottom: 140%;
+    left: 0;
+
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+
+    transition: 0.25s ease;
+}
+
+/* show on hover */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -173,10 +231,10 @@ div[data-testid="stSlider"] {
 # TOP NAVIGATION BAR
 # =========================
 # Using columns to place settings in the top right like the screenshot
-nav_col1, nav_col2, nav_col3, nav_col4 = st.columns([2, 1, 1, 1])
+nav_col1, nav_col2, nav_col3 = st.columns([2, 0.5, 0.5])
 
 with nav_col1:
-    st.markdown('<div style="font-weight:600; font-size:1.8rem; color:white; padding-top:15px;">📚Hybrid Document Search</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-weight:600; font-size:1.4rem; color:white; padding-top:15px;">✨ Hybrid Document Search</div>', unsafe_allow_html=True)
 
 with nav_col2:
     top_n = st.slider("MAX RESULTS", 1, 50, 15)
@@ -232,15 +290,25 @@ if search_clicked and query.strip():
     else:
         for i, r in enumerate(results, start=1):
             with st.container():
-                st.markdown("""<div style="margin: 20px 0;margin-top:0;padding-left:40px !important;padding-right:40px !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">""", unsafe_allow_html=True)
-                cols = st.columns([3, 1])
+                st.markdown("""<div class="resultBox" style="margin: 0;padding-left:40px !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0px;">""", unsafe_allow_html=True)
+                cols = st.columns([3, 0.1])
                 with cols[0]:
                     st.markdown(f"#### {r.get('title', 'Unknown')}")
                     st.markdown(f"<code style='color:#6620ae'>{r.get('document_type', 'N/A').upper()}</code>", unsafe_allow_html=True)
                     st.write(r.get("snippet"))
                     chunk_url = r.get("chunk_url")
+                    chunk_text = r.get("chunk_text", "")
+                    # if chunk_text: 
+                    #     st.write("**Full Document Text:**")
+                    #     st.write(chunk_text)
                     if chunk_url:
-                        st.markdown(f"[View Full Document]({chunk_url})")
+                        st.markdown(f"""
+                                     <a href="{chunk_url}" target="_blank">
+                            <div class="tooltip">
+                               View Full Document
+                                <span class="tooltiptext">{chunk_text}</span>
+                            </div></a>
+                            """, unsafe_allow_html=True)
                 # with cols[1]:
                 #     st.metric("Score", f"{r.get('rrf_score', 0):.4f}")
                 st.markdown("</div>", unsafe_allow_html=True)

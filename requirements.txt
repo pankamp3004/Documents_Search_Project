@@ -4,4 +4,12 @@ pdfplumber
 
 streamlit
 
-cloudinary
+python-dotenv
+
+sentence_transformers
+
+elasticsearch
+
+fastapi
+
+uvicorn[standard]
